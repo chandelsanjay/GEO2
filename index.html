@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Natural History Museum Abu Dhabi — WPY Geo Map</title>
+<title>WPY — Geo Map Kiosk</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div id="app" class="hidden-cursor">
+  <!-- Header -->
   <div class="header">
     <div class="lang-toggle">
       <button id="btn-en">English</button>
@@ -17,16 +18,16 @@
       <button id="btn-home" class="home-btn">🏠 <span data-i18n="home">Home</span></button>
     </div>
   </div>
-
+  <!-- Screens -->
   <section id="screen-welcome" class="screen welcome">
-    <canvas id="globeCanvas" class="globe"></canvas>
+    <div class="globe"><div class="sphere"><div class="tex"></div></div></div>
     <div class="centered">
       <div class="welcome-card">
         <h1 data-i18n="welcome_title">Explore the World of Wildlife Photography</h1>
         <button id="startBtn" data-i18n="tap_to_begin">Tap to begin</button>
       </div>
     </div>
-    <div class="footer-hint" data-i18n="enter_setup">Long-press top-left corner for 5 seconds to enter setup.</div>
+    <!-- setup hint hidden for approvals -->
   </section>
 
   <section id="screen-categories" class="screen hidden">
@@ -38,6 +39,7 @@
       <div class="map-stage">
         <div id="mapInner" class="map-inner">
           <div id="mapZoom"><img id="mapImage" alt="map"></div>
+          <!-- markers will be injected here -->
         </div>
         <div class="toolbar">
           <button id="btn-back-cats" class="back-btn" data-i18n="back_to_categories">Back to Categories</button>
@@ -58,6 +60,7 @@
   </section>
 </div>
 
+<!-- Setup overlay: download/import positions -->
 <div id="setupBar" class="toolbar hidden" style="left:16px;right:auto;bottom:16px;position:fixed;z-index:10">
   <button onclick="downloadPositions()">Download marker_positions.json</button>
   <label style="background:rgba(255,255,255,.1);padding:12px 16px;border-radius:12px;cursor:pointer">
@@ -67,10 +70,12 @@
 
 <script src="lib/panzoom.min.js"></script>
 <script>
+// ===== Simple i18n =====
 const I18N = { en: {}, ar: {} };
 let currentLang = localStorage.getItem('wpy_lang') || 'en';
 function setLang(lang){
-  currentLang = lang; localStorage.setItem('wpy_lang', lang);
+  currentLang = lang;
+  localStorage.setItem('wpy_lang', lang);
   document.documentElement.lang = (lang==='ar'?'ar':'en');
   document.documentElement.dir = (lang==='ar'?'rtl':'ltr');
   applyI18n();
@@ -82,131 +87,387 @@ function applyI18n(){
   });
 }
 
-let idleTimer=null; const IDLE_MS = 60000;
-function resetIdle(){ if(idleTimer) clearTimeout(idleTimer); idleTimer=setTimeout(()=>{ showScreen('screen-welcome'); panReset(); }, IDLE_MS); }
-['pointerdown','pointermove','keydown','touchstart'].forEach(evt=> window.addEventListener(evt, resetIdle, {passive:true}));
+
+// ===== Fallback categories (embedded) =====
+const CATEGORIES_DEFAULT = [
+  {
+    "key": "young_all",
+    "map": "assets/maps/WPY_MAP_01.png",
+    "title_en": "Young Photographers",
+    "title_ar": "المصورون الصغار",
+    "count": 22
+  },
+  {
+    "key": "rising_star",
+    "map": "assets/maps/WPY_MAP_02.png",
+    "title_en": "Rising Star Award",
+    "title_ar": "جائزة النجم الصاعد",
+    "count": 6
+  },
+  {
+    "key": "behaviour_mammals",
+    "map": "assets/maps/WPY_MAP_03.png",
+    "title_en": "Behaviour: Mammals",
+    "title_ar": "سلوك: الثدييات",
+    "count": 5
+  },
+  {
+    "key": "behaviour_birds",
+    "map": "assets/maps/WPY_MAP_04.png",
+    "title_en": "Behaviour: Birds",
+    "title_ar": "سلوك: الطيور",
+    "count": 5
+  },
+  {
+    "key": "behaviour_amphibians_reptiles",
+    "map": "assets/maps/WPY_MAP_05.png",
+    "title_en": "Behaviour: Amphibians and Reptiles",
+    "title_ar": "سلوك: البرمائيات والزواحف",
+    "count": 3
+  },
+  {
+    "key": "behaviour_invertebrates",
+    "map": "assets/maps/WPY_MAP_06.png",
+    "title_en": "Behaviour: Invertebrates",
+    "title_ar": "سلوك: اللافقاريات",
+    "count": 5
+  },
+  {
+    "key": "urban_wildlife",
+    "map": "assets/maps/WPY_MAP_07.png",
+    "title_en": "Urban Wildlife",
+    "title_ar": "الحياة البرية الحضرية",
+    "count": 5
+  },
+  {
+    "key": "animals_environment",
+    "map": "assets/maps/WPY_MAP_08.png",
+    "title_en": "Animals in their Environment",
+    "title_ar": "حيوانات في بيئتها",
+    "count": 6
+  },
+  {
+    "key": "wetlands_bigger_picture",
+    "map": "assets/maps/WPY_MAP_09.png",
+    "title_en": "Wetlands: The Bigger Picture",
+    "title_ar": "الأراضي الرطبة – الصورة الأوسع",
+    "count": 4
+  },
+  {
+    "key": "under_water",
+    "map": "assets/maps/WPY_MAP_10.png",
+    "title_en": "Under Water",
+    "title_ar": "تحت الماء",
+    "count": 5
+  },
+  {
+    "key": "oceans_bigger_picture",
+    "map": "assets/maps/WPY_MAP_11.png",
+    "title_en": "Oceans: The Bigger Picture",
+    "title_ar": "المحيطات – الصورة الأوسع",
+    "count": 3
+  },
+  {
+    "key": "photojournalism",
+    "map": "assets/maps/WPY_MAP_12.png",
+    "title_en": "Photojournalism",
+    "title_ar": "التصوير الصحفي",
+    "count": 5
+  },
+  {
+    "key": "photojournalist_story_award",
+    "map": "assets/maps/WPY_MAP_13.png",
+    "title_en": "Photojournalist Story Award",
+    "title_ar": "جائزة قصة المصور الصحفي",
+    "count": 6
+  },
+  {
+    "key": "natural_artistry",
+    "map": "assets/maps/WPY_MAP_14.png",
+    "title_en": "Natural Artistry",
+    "title_ar": "إبداع طبيعي",
+    "count": 6
+  },
+  {
+    "key": "animal_portraits",
+    "map": "assets/maps/WPY_MAP_15.png",
+    "title_en": "Animal Portraits",
+    "title_ar": "صور حيوانية",
+    "count": 5
+  },
+  {
+    "key": "plants_fungi",
+    "map": "assets/maps/WPY_MAP_16.png",
+    "title_en": "Plants and Fungi",
+    "title_ar": "النباتات والفطريات",
+    "count": 3
+  },
+  {
+    "key": "portfolio_award",
+    "map": "assets/maps/WPY_MAP_17.png",
+    "title_en": "Portfolio Award",
+    "title_ar": "جائزة المحفظة",
+    "count": 6
+  }
+];
+
+// ===== Idle / Attractor =====
+let idleTimer = null;
+const IDLE_MS = 60000; // 60s
+function resetIdle(){
+  if (idleTimer) clearTimeout(idleTimer);
+  idleTimer = setTimeout(()=>{
+    showScreen('screen-welcome');
+    panReset();
+  }, IDLE_MS);
+}
+['pointerdown','pointermove','keydown','touchstart'].forEach(evt=>{
+  window.addEventListener(evt, resetIdle, {passive:true});
+});
 resetIdle();
 
-let cursorTimer=null; function hideCursorSoon(){ document.body.classList.add('hidden-cursor'); }
-function showCursor(){ document.body.classList.remove('hidden-cursor'); if(cursorTimer) clearTimeout(cursorTimer); cursorTimer=setTimeout(hideCursorSoon,3000); }
-['mousemove','pointermove','touchstart'].forEach(e=> window.addEventListener(e, showCursor, {passive:true})); hideCursorSoon();
+// Hide cursor after a few seconds
+let cursorTimer=null;
+function hideCursorSoon(){
+  document.body.classList.add('hidden-cursor');
+}
+function showCursor(){
+  document.body.classList.remove('hidden-cursor');
+  if(cursorTimer) clearTimeout(cursorTimer);
+  cursorTimer = setTimeout(hideCursorSoon, 3000);
+}
+['mousemove','pointermove','touchstart'].forEach(e=>window.addEventListener(e, showCursor, {passive:true}));
+//hideCursorSoon();
 
-let categories=[]; let itemsByCategory={}; let markerPositions={}; let currentCategory=null; let pan=null;
+// ===== State =====
+let categories = [];
+let itemsByCategory = {}; // key -> array of {letter, title, photographer, location, country}
+let markerPositions = {}; // key -> {letter: {xPct, yPct}}
+let currentCategory = null;
+let pan = null;
 
-function showScreen(id){ document.querySelectorAll('.screen').forEach(s=> s.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
-const startBtn = document.getElementById('startBtn');
-startBtn.addEventListener('click', ()=> showScreen('screen-categories'));
-startBtn.addEventListener('pointerup', ()=> showScreen('screen-categories'));
+// ===== Screens =====
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+document.getElementById('startBtn').addEventListener('click', ()=> showScreen('screen-categories'));
 document.getElementById('btn-home').addEventListener('click', ()=> showScreen('screen-welcome'));
 document.getElementById('btn-back-cats').addEventListener('click', ()=> showScreen('screen-categories'));
 document.getElementById('btn-back-map').addEventListener('click', ()=> showScreen('screen-map'));
 document.getElementById('btn-en').addEventListener('click', ()=> setLang('en'));
 document.getElementById('btn-ar').addEventListener('click', ()=> setLang('ar'));
 
+// ===== Map PanZoom =====
 function panReset(){
-  const inner=document.getElementById('mapInner'); inner.style.left='50%'; inner.style.top='50%'; inner.style.transform='translate(-50%,-50%)';
-  const zoom=document.getElementById('mapZoom'); zoom.style.transform='translate(0px,0px) scale(1)';
-  if(pan){ pan.x=0; pan.y=0; pan.scale=1; }
+  const inner = document.getElementById('mapInner');
+  inner.style.left = '50%'; inner.style.top='50%';
+  inner.style.transform = 'translate(-50%,-50%)';
+  const zoom = document.getElementById('mapZoom');
+  zoom.style.transform = 'translate(0px,0px) scale(1)';
+  if(pan) { pan.x=0; pan.y=0; pan.scale=1; }
 }
 
-async function loadJSON(url){ const r=await fetch(url); return r.json(); }
-async function loadText(url){ const r=await fetch(url); return r.text(); }
+// ===== Load JSON helpers =====
+async function loadJSON(url){ const r = await fetch(url); return r.json(); }
+async function loadText(url){ const r = await fetch(url); return r.text(); }
 
+// Tiny CSV parser (assumes no commas inside values)
 function parseCSV(text){
-  const lines=text.trim().split(/\r?\n/); const headers=lines[0].split(',');
-  return lines.slice(1).map(line=>{ const cells=line.split(',').map(s=>s.trim()); const obj={}; headers.forEach((h,i)=> obj[h]= (cells[i]||'')); return obj; });
+  const lines = text.trim().split(/\\r?\\n/);
+  const headers = lines[0].split(',');
+  return lines.slice(1).map(line=>{
+    const cells = line.split(',').map(s=>s.trim());
+    const obj = {};
+    headers.forEach((h,i)=> obj[h]= (cells[i]||''));
+    return obj;
+  });
 }
 
-let setupMode=false; let setupTimeout=null; const setupBar=document.getElementById('setupBar');
+// ===== Setup Mode (for marker placement) =====
+let setupMode = false;
+let setupTimeout = null;
+const setupBar = document.getElementById('setupBar');
 document.querySelector('.header').addEventListener('pointerdown', (e)=>{
-  if(e.clientX<200 && e.clientY<120){
-    setupTimeout=setTimeout(()=>{ setupMode=!setupMode; setupBar.classList.toggle('hidden', !setupMode); alert(setupMode? (I18N[currentLang]['marker_setup']||'Marker Setup')+' ON':'OFF');},5000);
+  if(e.clientX<200 && e.clientY<120){ // top-left corner
+    setupTimeout = setTimeout(()=>{ setupMode = !setupMode; setupBar.classList.toggle('hidden', !setupMode); alert(setupMode? (I18N[currentLang]['marker_setup']||'Marker Setup') + ' ON': 'OFF'); }, 5000);
   }
 });
 window.addEventListener('pointerup', ()=> clearTimeout(setupTimeout));
 
+document.getElementById('importFile').addEventListener('change', async (e)=>{
+  const f = e.target.files[0];
+  if(f) await importPositions(f);
+});
+
 function enableMarkerPlacement(letter){
-  const img=document.getElementById('mapImage'); const inner=document.getElementById('mapInner');
+  const img = document.getElementById('mapImage');
+  const inner = document.getElementById('mapInner');
   function handler(ev){
-    const rect=img.getBoundingClientRect(); const x=(ev.clientX-rect.left)/rect.width; const y=(ev.clientY-rect.top)/rect.height;
-    if(!markerPositions[currentCategory.key]) markerPositions[currentCategory.key]={};
-    markerPositions[currentCategory.key][letter]={xPct:x, yPct:y};
-    renderMarkers(); inner.removeEventListener('pointerdown', handler); savePositions();
+    const rect = img.getBoundingClientRect();
+    const x = (ev.clientX - rect.left)/rect.width;
+    const y = (ev.clientY - rect.top)/rect.height;
+    if(!markerPositions[currentCategory.key]) markerPositions[currentCategory.key] = {};
+    markerPositions[currentCategory.key][letter] = {xPct:x, yPct:y};
+    renderMarkers();
+    inner.removeEventListener('pointerdown', handler);
+    savePositions();
   }
   inner.addEventListener('pointerdown', handler, {once:true});
   alert((I18N[currentLang]['setup_instructions']||'Tap on the map to set the position for letter:')+' '+letter);
 }
 
-function savePositions(){ localStorage.setItem('marker_positions', JSON.stringify(markerPositions)); }
-function loadPositions(){ try{ const s=localStorage.getItem('marker_positions'); if(s) markerPositions=JSON.parse(s);}catch(e){} }
-function downloadPositions(){ const a=document.createElement('a'); a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(markerPositions,null,2)); a.download='marker_positions.json'; document.body.appendChild(a); a.click(); a.remove(); }
-window.downloadPositions=downloadPositions;
-async function importPositions(file){ const txt=await file.text(); markerPositions=JSON.parse(txt); savePositions(); renderMarkers(); }
-document.getElementById('importFile').addEventListener('change', async (e)=>{ const f=e.target.files[0]; if(f) await importPositions(f); });
+function savePositions(){
+  localStorage.setItem('marker_positions', JSON.stringify(markerPositions));
+}
+function loadPositions(){
+  try{
+    const s = localStorage.getItem('marker_positions');
+    if(s) markerPositions = JSON.parse(s);
+  }catch(e){}
+}
 
+// Download / Import positions
+function downloadPositions(){
+  const a = document.createElement('a');
+  a.href = 'data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(markerPositions,null,2));
+  a.download = 'marker_positions.json';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+window.downloadPositions = downloadPositions;
+async function importPositions(file){
+  const txt = await file.text();
+  markerPositions = JSON.parse(txt);
+  savePositions();
+  renderMarkers();
+}
+
+// ===== Render =====
 function renderCategoryGrid(){
-  const grid=document.getElementById('categoryGrid'); grid.innerHTML='';
+  const grid = document.getElementById('categoryGrid');
+  grid.innerHTML = '';
   categories.forEach(cat=>{
-    const card=document.createElement('div'); card.className='card';
-    card.innerHTML=`<div class="card-title">${getTitle(cat)}</div><div style="opacity:.7">${cat.count} items</div>`;
-    card.addEventListener('click', ()=> openCategory(cat)); grid.appendChild(card);
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `<div class="card-title">${getTitle(cat)}</div>
+      <div style="opacity:.7">${cat.count} items</div>`;
+    card.addEventListener('click', ()=> openCategory(cat));
+    grid.appendChild(card);
   });
 }
-function getTitle(cat){ return (currentLang==='ar'?cat.title_ar:cat.title_en); }
+
+function getTitle(cat){
+  return (currentLang==='ar'?cat.title_ar:cat.title_en);
+}
 
 function openCategory(cat){
-  currentCategory=cat; showScreen('screen-map');
-  document.getElementById('mapImage').src=cat.map;
-  document.getElementById('sideTitle').textContent=getTitle(cat);
+  currentCategory = cat;
+  showScreen('screen-map');
+  document.getElementById('mapImage').src = cat.map;
+  document.getElementById('sideTitle').textContent = getTitle(cat);
   renderItemList();
-  const zoomEl=document.getElementById('mapZoom'); pan=new PanZoom(zoomEl,{minScale:1,maxScale:5});
-  panReset(); renderMarkers();
+  const zoomEl = document.getElementById('mapZoom');
+  pan = new PanZoom(zoomEl, {minScale:1, maxScale:5});
+  panReset();
+  renderMarkers();
 }
 
 function renderItemList(){
-  const list=document.getElementById('itemList'); const items=itemsByCategory[currentCategory.key]||[];
-  if(items.length===0){ list.innerHTML=`<div style="padding:16px;opacity:.7" data-i18n="no_items">${I18N['en']['no_items']}</div>`; applyI18n(); return; }
-  list.innerHTML=''; items.forEach(it=>{
-    const div=document.createElement('div'); div.className='list-item';
-    div.innerHTML=`<div class="badge">${it.letter}</div><div><div style="font-weight:700">${it['title_'+currentLang]||it['title_en']||''}</div><div class="meta">${(I18N[currentLang]['photographer']||'Photographer')}: ${it['photographer_'+currentLang]||it['photographer_en']||'—'}</div></div>`;
-    div.addEventListener('click', ()=>{ if(setupMode){ enableMarkerPlacement(it.letter); } else { openDetail(it); }});
+  const list = document.getElementById('itemList');
+  const items = itemsByCategory[currentCategory.key] || [];
+  if(items.length===0){
+    list.innerHTML = `<div style="padding:16px;opacity:.7" data-i18n="no_items">${I18N['en']['no_items']}</div>`;
+    applyI18n();
+    return;
+  }
+  list.innerHTML = '';
+  items.forEach(it=>{
+    const div = document.createElement('div');
+    div.className = 'list-item';
+    div.innerHTML = `<div class="badge">${it.letter}</div>
+    <div>
+      <div style="font-weight:700">${it['title_'+currentLang]||it['title_en']||''}</div>
+      <div class="meta">${(I18N[currentLang]['photographer']||'Photographer')}: ${it['photographer_'+currentLang]||it['photographer_en']||'—'}</div>
+    </div>`;
+    div.addEventListener('click', ()=> {
+      if(setupMode){ enableMarkerPlacement(it.letter); }
+      else { openDetail(it); }
+    });
     list.appendChild(div);
   });
 }
 
 function renderMarkers(){
-  const inner=document.getElementById('mapInner');
+  const inner = document.getElementById('mapInner');
   inner.querySelectorAll('.marker').forEach(m=>m.remove());
-  const items=itemsByCategory[currentCategory.key]||[]; const posMap=markerPositions[currentCategory.key]||{};
+  const items = itemsByCategory[currentCategory.key] || [];
+  const posMap = markerPositions[currentCategory.key] || {};
   items.forEach(it=>{
-    const pos=posMap[it.letter]; if(!pos) return;
-    const m=document.createElement('div'); m.className='marker'; m.textContent=it.letter;
-    m.style.left=(pos.xPct*100)+'%'; m.style.top=(pos.yPct*100)+'%';
-    m.addEventListener('click',(e)=>{ e.stopPropagation(); openDetail(it); });
-    inner.appendChild(m);
+    const pos = posMap[it.letter];
+    if(!pos) return;
+    const m = document.createElement('div');
+    m.className = 'marker';
+    m.textContent = it.letter;
+    m.style.left = (pos.xPct*100)+'%';
+    m.style.top  = (pos.yPct*100)+'%';
+    m.addEventListener('click', (e)=>{ e.stopPropagation(); openDetail(it); });
+    zoomWrap.appendChild(m);
   });
 }
 
 function openDetail(item){
   showScreen('screen-detail');
-  const d=document.getElementById('detailPanel');
-  d.innerHTML=`<div class="badge" style="margin:8px 0">${item.letter}</div>
+  const d = document.getElementById('detailPanel');
+  d.innerHTML = `
+  <div class="badge" style="margin:8px 0">${item.letter}</div>
   <h3>${item['title_'+currentLang]||item['title_en']||''}</h3>
   <div class="meta">${(I18N[currentLang]['photographer']||'Photographer')}: ${item['photographer_'+currentLang]||item['photographer_en']||'—'}</div>
   <div class="meta">${(I18N[currentLang]['location']||'Location')}: ${item['location_'+currentLang]||item['location_en']||''}</div>
-  <div class="meta">${(I18N[currentLang]['country']||'Country')}: ${item['country_'+currentLang]||item['country_en']||''}</div>`;
+  <div class="meta">${(I18N[currentLang]['country']||'Country')}: ${item['country_'+currentLang]||item['country_en']||''}</div>
+  `;
+}
+
+// ===== Boot =====
+
+function showError(msg){
+  let el = document.getElementById('errbar');
+  if(!el){
+    el = document.createElement('div');
+    el.id='errbar';
+    el.style.cssText='position:fixed;left:0;right:0;bottom:0;background:#a00;color:#fff;padding:10px 16px;font-size:14px;z-index:9999;opacity:.9';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  setTimeout(()=>{ el.remove(); }, 6000);
 }
 
 async function boot(){
-  I18N.en=await loadJSON('data/i18n/en.json'); I18N.ar=await loadJSON('data/i18n/ar.json'); setLang(currentLang);
-  categories=await loadJSON('data/categories.json');
-
-  try{ const csv=await loadText('data/wpy_items.csv'); const rows=parseCSV(csv); itemsByCategory={}; for(const r of rows){ const k=r.category_key; if(!itemsByCategory[k]) itemsByCategory[k]=[]; itemsByCategory[k].push(r);} }
-  catch(e){ const csv=await loadText('data/wpy_items_template.csv'); const rows=parseCSV(csv); itemsByCategory={}; for(const r of rows){ const k=r.category_key; if(!itemsByCategory[k]) itemsByCategory[k]=[]; itemsByCategory[k].push(r);} }
-  for(const k in itemsByCategory){ itemsByCategory[k].sort((a,b)=> a.letter.localeCompare(b.letter)); }
-  loadPositions(); renderCategoryGrid(); applyI18n();
+  I18N.en = await loadJSON('data/i18n/en.json');
+  I18N.ar = await loadJSON('data/i18n/ar.json');
+  setLang(currentLang);
+  categories = await loadJSON('data/categories.json');
+  // Load CSV
+  const csv = await loadText('data/wpy_items.csv');
+  const rows = parseCSV(csv);
+  itemsByCategory = {};
+  for(const r of rows){
+    const k = r.category_key;
+    if(!itemsByCategory[k]) itemsByCategory[k] = [];
+    itemsByCategory[k].push(r);
+  }
+  for(const k in itemsByCategory){
+    itemsByCategory[k].sort((a,b)=> a.letter.localeCompare(b.letter));
+  }
+  loadPositions();
+  renderCategoryGrid();
+  applyI18n();
 }
-initGlobe();
+document.getElementById('importFile').addEventListener('change', async (e)=>{
+  const f = e.target.files[0];
+  if(f) await importPositions(f);
+});
+
 boot();
 </script>
 </body>

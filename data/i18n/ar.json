@@ -1,0 +1,23 @@
+{
+  "welcome_title": "استكشف عالم تصوير الحياة البرية",
+  "tap_to_begin": "اضغط للبدء",
+  "select_category": "اختر فئة لاستكشافها",
+  "back_to_categories": "العودة إلى الفئات",
+  "back_to_map": "العودة إلى الخريطة",
+  "language": "اللغة",
+  "english": "English",
+  "arabic": "العربية",
+  "no_items": "لا توجد عناصر لهذه الفئة حتى الآن.",
+  "photographer": "المصور",
+  "location": "الموقع",
+  "country": "الدولة",
+  "marker_setup": "ضبط العلامات",
+  "enter_setup": "اضغط مطولاً على الزاوية العلوية اليسرى لمدة 5 ثوانٍ للدخول إلى وضع الضبط.",
+  "setup_instructions": "اضغط على الخريطة لتحديد موضع الحرف:",
+  "save_positions": "حفظ المواضع",
+  "download_positions": "تنزيل marker_positions.json",
+  "import_positions": "استيراد المواضع",
+  "idle_prompt": "مرحباً — المس الشاشة للبدء",
+  "search": "بحث",
+  "home": "الصفحة الرئيسية"
+}

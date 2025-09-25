@@ -1,0 +1,121 @@
+[
+  {
+    "key": "young_all",
+    "map": "assets/maps/WPY_MAP_01.png",
+    "title_en": "Young Photographers",
+    "title_ar": "المصورون الصغار",
+    "count": 22
+  },
+  {
+    "key": "rising_star",
+    "map": "assets/maps/WPY_MAP_02.png",
+    "title_en": "Rising Star Award",
+    "title_ar": "جائزة النجم الصاعد",
+    "count": 6
+  },
+  {
+    "key": "behaviour_mammals",
+    "map": "assets/maps/WPY_MAP_03.png",
+    "title_en": "Behaviour: Mammals",
+    "title_ar": "سلوك: الثدييات",
+    "count": 5
+  },
+  {
+    "key": "behaviour_birds",
+    "map": "assets/maps/WPY_MAP_04.png",
+    "title_en": "Behaviour: Birds",
+    "title_ar": "سلوك: الطيور",
+    "count": 5
+  },
+  {
+    "key": "behaviour_amphibians_reptiles",
+    "map": "assets/maps/WPY_MAP_05.png",
+    "title_en": "Behaviour: Amphibians and Reptiles",
+    "title_ar": "سلوك: البرمائيات والزواحف",
+    "count": 3
+  },
+  {
+    "key": "behaviour_invertebrates",
+    "map": "assets/maps/WPY_MAP_06.png",
+    "title_en": "Behaviour: Invertebrates",
+    "title_ar": "سلوك: اللافقاريات",
+    "count": 5
+  },
+  {
+    "key": "urban_wildlife",
+    "map": "assets/maps/WPY_MAP_07.png",
+    "title_en": "Urban Wildlife",
+    "title_ar": "الحياة البرية الحضرية",
+    "count": 5
+  },
+  {
+    "key": "animals_environment",
+    "map": "assets/maps/WPY_MAP_08.png",
+    "title_en": "Animals in their Environment",
+    "title_ar": "حيوانات في بيئتها",
+    "count": 6
+  },
+  {
+    "key": "wetlands_bigger_picture",
+    "map": "assets/maps/WPY_MAP_09.png",
+    "title_en": "Wetlands: The Bigger Picture",
+    "title_ar": "الأراضي الرطبة – الصورة الأوسع",
+    "count": 4
+  },
+  {
+    "key": "under_water",
+    "map": "assets/maps/WPY_MAP_10.png",
+    "title_en": "Under Water",
+    "title_ar": "تحت الماء",
+    "count": 5
+  },
+  {
+    "key": "oceans_bigger_picture",
+    "map": "assets/maps/WPY_MAP_11.png",
+    "title_en": "Oceans: The Bigger Picture",
+    "title_ar": "المحيطات – الصورة الأوسع",
+    "count": 3
+  },
+  {
+    "key": "photojournalism",
+    "map": "assets/maps/WPY_MAP_12.png",
+    "title_en": "Photojournalism",
+    "title_ar": "التصوير الصحفي",
+    "count": 5
+  },
+  {
+    "key": "photojournalist_story_award",
+    "map": "assets/maps/WPY_MAP_13.png",
+    "title_en": "Photojournalist Story Award",
+    "title_ar": "جائزة قصة المصور الصحفي",
+    "count": 6
+  },
+  {
+    "key": "natural_artistry",
+    "map": "assets/maps/WPY_MAP_14.png",
+    "title_en": "Natural Artistry",
+    "title_ar": "إبداع طبيعي",
+    "count": 6
+  },
+  {
+    "key": "animal_portraits",
+    "map": "assets/maps/WPY_MAP_15.png",
+    "title_en": "Animal Portraits",
+    "title_ar": "صور حيوانية",
+    "count": 5
+  },
+  {
+    "key": "plants_fungi",
+    "map": "assets/maps/WPY_MAP_16.png",
+    "title_en": "Plants and Fungi",
+    "title_ar": "النباتات والفطريات",
+    "count": 3
+  },
+  {
+    "key": "portfolio_award",
+    "map": "assets/maps/WPY_MAP_17.png",
+    "title_en": "Portfolio Award",
+    "title_ar": "جائزة المحفظة",
+    "count": 6
+  }
+]

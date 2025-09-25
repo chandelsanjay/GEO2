@@ -1,0 +1,23 @@
+{
+  "welcome_title": "Explore the World of Wildlife Photography",
+  "tap_to_begin": "Tap to begin",
+  "select_category": "Select a category to explore",
+  "back_to_categories": "Back to Categories",
+  "back_to_map": "Back to Map",
+  "language": "Language",
+  "english": "English",
+  "arabic": "العربية",
+  "no_items": "No items found for this category yet.",
+  "photographer": "Photographer",
+  "location": "Location",
+  "country": "Country",
+  "marker_setup": "Marker Setup",
+  "enter_setup": "Long-press top-left corner for 5 seconds to enter setup.",
+  "setup_instructions": "Tap on the map to set the position for letter:",
+  "save_positions": "Save Positions",
+  "download_positions": "Download marker_positions.json",
+  "import_positions": "Import positions",
+  "idle_prompt": "Welcome — tap anywhere to start",
+  "search": "Search",
+  "home": "Home"
+}
